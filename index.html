@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Feasibility">
+<meta name="theme-color" content="#1c1915">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<title>Feasibility Desk</title>
+<style>
+  :root {
+    --ink:#1c1915; --muted:#6b645c; --line:#e4ddd4; --paper:#f6f1ea; --card:#fffdfb;
+    --copper:#9a5b32; --ok:#2f6b4f; --warn:#9a6b1f; --bad:#8c3a32;
+    --shadow:0 10px 28px rgba(40,28,16,.08);
+  }
+  * { box-sizing:border-box; }
+  html,body { margin:0; }
+  body {
+    font-family: Palatino, "Palatino Linotype", Georgia, serif;
+    background: radial-gradient(1000px 420px at 0 -10%, #efe4d4, transparent 60%), var(--paper);
+    color:var(--ink);
+  }
+  .wrap { max-width:920px; margin:0 auto; padding:16px 14px 92px; }
+  .brand { letter-spacing:.18em; text-transform:uppercase; font:600 11px/1 ui-sans-serif,system-ui,sans-serif; color:var(--copper); }
+  h1 { font-size:30px; line-height:1.05; margin:4px 0 6px; font-weight:600; }
+  .sub { color:var(--muted); margin:0 0 12px; font-size:15px; }
+  .row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  button, .btn {
+    font-family:ui-sans-serif,system-ui,sans-serif; border:1px solid var(--ink); background:var(--ink);
+    color:#fff; border-radius:999px; padding:9px 12px; font-size:13px; cursor:pointer;
+  }
+  button.ghost { background:transparent; color:var(--ink); }
+  button.soft { background:#fff; color:var(--ink); border-color:#ddd4ca; }
+  button.on { background:var(--copper); border-color:var(--copper); }
+  .tools { display:flex; gap:6px; overflow-x:auto; padding:4px 0 10px; }
+  .tools button { white-space:nowrap; }
+  .panel { background:var(--card); border:1px solid var(--line); border-radius:18px; box-shadow:var(--shadow); padding:16px; }
+  h2 { margin:0 0 4px; font-size:22px; }
+  .hint { color:var(--muted); margin:0 0 12px; font-size:14.5px; }
+  label { display:block; font:600 11px/1.2 ui-sans-serif,system-ui,sans-serif; letter-spacing:.04em; text-transform:uppercase; color:var(--muted); margin:12px 0 6px; }
+  input, textarea, select {
+    width:100%; border:1px solid #ddd4ca; background:#fff; color:var(--ink);
+    border-radius:12px; padding:11px; font:16px/1.4 Georgia,serif;
+  }
+  textarea { min-height:78px; resize:vertical; }
+  .grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .grid3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; }
+  .scale { display:grid; grid-template-columns:repeat(5,1fr); gap:6px; }
+  .scale button { background:#fff; color:var(--ink); border-color:#ddd4ca; border-radius:12px; padding:8px 0; }
+  .scale button.on { background:var(--copper); border-color:var(--copper); color:#fff; }
+  .nav { display:flex; justify-content:space-between; gap:8px; margin-top:14px; }
+  .kpi { border:1px solid var(--line); border-radius:12px; padding:10px; background:#fff; }
+  .kpi small { font:600 10px/1 ui-sans-serif,system-ui,sans-serif; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); }
+  .kpi b { display:block; font-size:20px; margin-top:4px; }
+  .pill { display:inline-block; border-radius:999px; padding:4px 10px; font:600 12px/1.4 ui-sans-serif,system-ui,sans-serif; }
+  .go { background:#e7f3ec; color:var(--ok); } .hold { background:#f8efd8; color:var(--warn); } .stop { background:#f8e8e6; color:var(--bad); }
+  .barrow { display:grid; grid-template-columns:108px 1fr 34px; gap:8px; align-items:center; font:13px ui-sans-serif,system-ui,sans-serif; margin:6px 0; }
+  .track { height:8px; background:#efe6dc; border-radius:99px; overflow:hidden; }
+  .fill { height:100%; background:var(--copper); }
+  .check { display:flex; gap:8px; align-items:flex-start; padding:8px 0; border-bottom:1px solid var(--line); font-size:15px; }
+  .check input { width:18px; height:18px; margin-top:3px; }
+  .ai { background:#1c1915; color:#f6f1ea; border-radius:16px; padding:14px; margin-top:12px; }
+  .ai h3 { margin:0 0 6px; font-size:16px; }
+  .ai p, .ai li { font-size:14.5px; line-height:1.45; }
+  .chip { font:12px ui-sans-serif,system-ui,sans-serif; border:1px solid #ddd4ca; border-radius:999px; padding:6px 10px; background:#fff; cursor:pointer; }
+  .dock {
+    position:sticky; bottom:8px; display:flex; gap:6px; overflow-x:auto;
+    background:rgba(255,253,251,.94); border:1px solid var(--line); border-radius:16px; padding:8px;
+    backdrop-filter:blur(8px);
+  }
+  .dock button { flex:0 0 auto; }
+  table { width:100%; border-collapse:collapse; font-size:14px; }
+  th, td { text-align:left; padding:7px 4px; border-bottom:1px solid var(--line); vertical-align:top; }
+  .swot { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+  .swot div { border-radius:12px; padding:10px; min-height:90px; }
+  .s { background:#e7f3ec; } .w { background:#f8e8e6; } .o { background:#eef3f8; } .t { background:#f8efd8; }
+  footer.note { margin-top:12px; color:var(--muted); font:12px ui-sans-serif,system-ui,sans-serif; }
+  @media (max-width:680px) { .grid,.grid3,.swot { grid-template-columns:1fr; } h1 { font-size:26px; } }
+  @media print {
+    .tools,.dock,.nav,.no-print,footer.note { display:none !important; }
+    .panel { box-shadow:none; border:none; }
+    body { background:#fff; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand">Feasibility Desk</div>
+  <h1 id="title">Should you do this?</h1>
+  <p class="sub">Full study desk: market, money, permits, risks, timeline, shortcuts, and a writer that drafts the report from your answers.</p>
+  <div class="row no-print" style="margin-bottom:8px">
+    <button class="ghost" id="newBtn" type="button">New</button>
+    <button class="ghost" id="exportBtn" type="button">Export</button>
+    <button class="ghost" id="importBtn" type="button">Import</button>
+    <button id="printBtn" type="button">Print / PDF</button>
+    <input id="file" type="file" accept="application/json" hidden>
+  </div>
+  <div class="tools no-print" id="tools"></div>
+  <section class="panel" id="app"></section>
+  <div class="dock no-print" id="dock"></div>
+  <footer class="note">Planning aid only. Confirm permits, quotes, and numbers with the city, a lender, and your own records before you spend money.</footer>
+</div>
+<script>
+const TOOLS = [
+  ["study","Study"], ["money","Money"], ["market","Market"], ["rules","Permits"],
+  ["risks","Risks"], ["swot","SWOT"], ["plan","Timeline"], ["ai","AI writer"], ["keys","Shortcuts"], ["home","Home screen"]
+];
+const PERMITS = [
+  "Business license","Seller's permit / resale","Zoning check for the address","Conditional use permit if needed",
+  "Health permit","Building permit","Fire inspection","Sign permit","Insurance quote",
+  "Lease or owner approval","Fictitious business name","EIN / tax account","ADA access check","Parking / hours rules"
+];
+const blank = () => ({
+  tool:"study", step:0,
+  name:"", type:"Business", place:"", summary:"", problem:"", customer:"",
+  demand:3, competition:3, edge:"", price:"", customers:"", startup:"", monthly:"",
+  funding:"Not sure yet", skills:3, site:3, timeline:"90 days", permits:3, rulesNotes:"",
+  team:3, hours:"", risksText:"",
+  checked:{}, comps:[{name:"",price:"",note:""},{name:"",price:"",note:""}],
+  strengths:"", weaknesses:"", opportunities:"", threats:"",
+  milestones:[
+    {name:"Talk to 10 possible customers", due:"Week 1", done:false},
+    {name:"Get 3 cost quotes", due:"Week 2", done:false},
+    {name:"Confirm zoning and license", due:"Week 3", done:false},
+    {name:"Go / no-go meeting", due:"Week 4", done:false}
+  ],
+  risks:[
+    {name:"Slow first month", hit:"High", plan:""},
+    {name:"Permit delay", hit:"Medium", plan:""}
+  ]
+});
+let state = blank();
+
+function $(id){ return document.getElementById(id); }
+function money(n){ const x = Number(String(n??"").replace(/[^0-9.]/g,"")); return Number.isFinite(x)?x:0; }
+function fmt(n){ return Number(n||0).toLocaleString("en-US",{style:"currency",currency:"USD",maximumFractionDigits:0}); }
+function esc(s){ return String(s??"").replace(/[&<>"]/g, c => ({"&":"&","<":"<",">":">",'"':"""}[c])); }
+
+function calc(){
+  const startup = money(state.startup), monthly = money(state.monthly);
+  const price = money(state.price), customers = money(state.customers);
+  const revenue = price * customers;
+  const margin = revenue - monthly;
+  const payback = margin > 0 && startup > 0 ? startup / margin : null;
+  const breakEven = price > 0 ? Math.ceil(monthly / price) : null;
+  const market = Math.min(100, Math.round((state.demand*16) + ((6-state.competition)*10)));
+  const finance = !startup && !monthly ? 45 : margin <= 0 ? 24 : payback <= 12 ? 92 : payback <= 24 ? 74 : payback <= 36 ? 58 : 46;
+  const build = Math.min(100, state.skills*14 + state.site*8);
+  const legal = Math.min(100, state.permits*18 + Math.round(Object.values(state.checked).filter(Boolean).length / PERMITS.length * 15));
+  const ops = Math.min(100, state.team*18);
+  const parts = { Market:market, Money:finance, Build:build, Rules:legal, Operations:ops };
+  const total = Math.round(Object.values(parts).reduce((a,b)=>a+b,0)/5);
+  let call="Hold — fix weak spots first", klass="hold";
+  if (total>=75 && finance>=55 && legal>=40) { call="Go — worth a serious next step"; klass="go"; }
+  if (total<50 || finance<35 || legal<30) { call="Stop or redesign"; klass="stop"; }
+  return { startup, monthly, price, customers, revenue, margin, payback, breakEven, parts, total, call, klass };
+}
+
+function save(){ localStorage.setItem("feasibility-desk-v2", JSON.stringify(state)); }
+function load(){
+  try { const raw = localStorage.getItem("feasibility-desk-v2"); if (raw) state = Object.assign(blank(), JSON.parse(raw)); } catch(e){}
+}
+
+function scale(key, labels){
+  return `<div class="scale">${[1,2,3,4,5].map(n=>`<button type="button" class="${Number(state[key])===n?"on":""}" data-scale="${key}" data-n="${n}">${n}<div style="font-size:10px;opacity:.8">${labels[n-1]}</div></button>`).join("")}</div>`;
+}
+function field(label, key, tag="input", extra=""){
+  const val = esc(state[key]);
+  if (tag==="textarea") return `<label>${label}</label><textarea data-k="${key}" ${extra}>${val}</textarea>`;
+  return `<label>${label}</label><input data-k="${key}" value="${val}" ${extra}>`;
+}
+
+function study(){
+  const steps = ["Idea","Market","Money","Build","Rules","Run"];
+  const i = state.step;
+  let body = "";
+  if (i===0) body = `
+    ${field("Project name","name","input","placeholder='Main Street coffee window'")}
+    <label>Type</label><select data-k="type">${["Business","Event","Property / land","Community project","Job or service","Other"].map(t=>`<option ${state.type===t?"selected":""}>${t}</option>`).join("")}</select>
+    ${field("Location","place","input","placeholder='City or address'")}
+    ${field("What is it?","summary","textarea")}
+    ${field("What problem does it solve?","problem","textarea")}`;
+  if (i===1) body = `
+    ${field("Who pays?","customer","textarea")}
+    <label>Demand</label>${scale("demand",["Weak","Low","Some","Strong","Urgent"])}
+    <label>Competition</label>${scale("competition",["Empty","Light","Some","Crowded","Packed"])}
+    ${field("Why you?","edge","textarea")}`;
+  if (i===2) body = `<div class="grid">
+      <div>${field("Startup $","startup","input","inputmode='decimal'")}</div>
+      <div>${field("Monthly costs $","monthly","input","inputmode='decimal'")}</div>
+      <div>${field("Price per sale $","price","input","inputmode='decimal'")}</div>
+      <div>${field("Sales per month","customers","input","inputmode='decimal'")}</div>
+    </div>
+    <label>Funding</label><select data-k="funding">${["Savings","Loan","Investor / partner","Grant","Sales only","Not sure yet"].map(t=>`<option ${state.funding===t?"selected":""}>${t}</option>`).join("")}</select>`;
+  if (i===3) body = `
+    <label>Skills on the team</label>${scale("skills",["None","Learning","Some","Solid","Expert"])}
+    <label>Site or setup ready?</label>${scale("site",["No","Unlikely","Maybe","Likely","Yes"])}
+    ${field("Time to launch","timeline")}`;
+  if (i===4) body = `
+    <label>How clear are the rules?</label>${scale("permits",["Blocked","Unclear","Some checks","Mostly clear","Approved"])}
+    ${field("What must be checked?","rulesNotes","textarea")}`;
+  if (i===5) body = `
+    <label>Can you staff it?</label>${scale("team",["No","Tight","Possible","Ready","Strong"])}
+    ${field("Hours you can give each week","hours")}
+    ${field("Biggest risks","risksText","textarea")}`;
+  return `<h2>Study · ${steps[i]}</h2><p class="hint">Step ${i+1} of 6. Use the dock to jump tools anytime.</p>
+    <div class="row no-print" style="margin-bottom:8px">${steps.map((s,n)=>`<button type="button" class="soft ${n===i?"on":""}" data-step="${n}">${n+1}. ${s}</button>`).join("")}</div>
+    ${body}
+    <div class="nav"><button class="ghost" type="button" id="back">Back</button><button type="button" id="next">${i===5?"Open report writer":"Next"}</button></div>`;
+}
+
+function moneyTool(){
+  const c = calc();
+  const slow = c.price ? (c.customers*0.6*c.price) - c.monthly : 0;
+  return `<h2>Money desk</h2><p class="hint">Break-even, payback, and a slow-month test.</p>
+    <div class="grid">
+      <div>${field("Startup $","startup","input","inputmode='decimal'")}</div>
+      <div>${field("Monthly costs $","monthly","input","inputmode='decimal'")}</div>
+      <div>${field("Price $","price","input","inputmode='decimal'")}</div>
+      <div>${field("Sales / month","customers","input","inputmode='decimal'")}</div>
+    </div>
+    <div class="grid" style="margin-top:12px">
+      <div class="kpi"><small>Monthly sales</small><b>${fmt(c.revenue)}</b></div>
+      <div class="kpi"><small>Leftover</small><b>${fmt(c.margin)}</b></div>
+      <div class="kpi"><small>Break-even sales</small><b>${c.breakEven==null?"—":c.breakEven+"/mo"}</b></div>
+      <div class="kpi"><small>Payback</small><b>${c.payback==null?"No payback":c.payback.toFixed(1)+" mo"}</b></div>
+      <div class="kpi"><small>Slow month leftover</small><b>${fmt(slow)}</b></div>
+      <div class="kpi"><small>Score</small><b>${c.total} · ${c.klass}</b></div>
+    </div>
+    <div class="ai"><h3>Money read</h3><p>${c.margin<=0?"Costs eat the sales. Raise price, cut the monthly bill, or sell more before launch.":c.payback&&c.payback<=18?"Payback is inside 18 months if the sales guess holds. Prove the sales number before you fund the full startup.":"It can work, but payback is slow. Run a smaller version or cut startup cost."} A 40% slow month leaves ${fmt(slow)}.</p></div>`;
+}
+
+function marketTool(){
+  const rows = state.comps.map((r,i)=>`<tr>
+    <td><input data-comp="name" data-i="${i}" value="${esc(r.name)}" placeholder="Name"></td>
+    <td><input data-comp="price" data-i="${i}" value="${esc(r.price)}" placeholder="$"></td>
+    <td><input data-comp="note" data-i="${i}" value="${esc(r.note)}" placeholder="What they do better"></td>
+  </tr>`).join("");
+  return `<h2>Market board</h2><p class="hint">Name the buyer and two or three rivals. Empty markets are rare.</p>
+    ${field("Customer","customer","textarea")}
+    <label>Demand</label>${scale("demand",["Weak","Low","Some","Strong","Urgent"])}
+    <label>Competition</label>${scale("competition",["Empty","Light","Some","Crowded","Packed"])}
+    ${field("Your edge","edge","textarea")}
+    <label>Competitors</label>
+    <table><tr><th>Name</th><th>Price</th><th>Note</th></tr>${rows}</table>
+    <div class="nav"><button class="ghost" type="button" id="addComp">Add competitor</button></div>`;
+}
+
+function rulesTool(){
+  const list = PERMITS.map(p=>`<label class="check"><input type="checkbox" data-permit="${esc(p)}" ${state.checked[p]?"checked":""}><span>${p}</span></label>`).join("");
+  const done = PERMITS.filter(p=>state.checked[p]).length;
+  return `<h2>Permit checklist</h2><p class="hint">${done} of ${PERMITS.length} marked. Unchecked items are still open.</p>
+    <label>Rules clarity</label>${scale("permits",["Blocked","Unclear","Some checks","Mostly clear","Approved"])}
+    ${field("Notes for this address","rulesNotes","textarea","placeholder='Zoning, landlord, health, hours'")}
+    ${list}`;
+}
+
+function risksTool(){
+  const rows = state.risks.map((r,i)=>`<div class="grid3" style="margin-bottom:8px">
+    <input data-risk="name" data-i="${i}" value="${esc(r.name)}" placeholder="Risk">
+    <select data-risk="hit" data-i="${i}">${["Low","Medium","High"].map(h=>`<option ${r.hit===h?"selected":""}>${h}</option>`).join("")}</select>
+    <input data-risk="plan" data-i="${i}" value="${esc(r.plan)}" placeholder="Backup plan">
+  </div>`).join("");
+  return `<h2>Risk register</h2><p class="hint">Every go decision needs a backup, not only a hope.</p>
+    ${rows}
+    ${field("Other risks in your words","risksText","textarea")}
+    <div class="nav"><button class="ghost" type="button" id="addRisk">Add risk</button></div>`;
+}
+
+function swotTool(){
+  return `<h2>SWOT</h2><p class="hint">Four boxes. Short lines beat essays.</p>
+    <div class="swot">
+      <div class="s"><label>Strengths</label><textarea data-k="strengths">${esc(state.strengths)}</textarea></div>
+      <div class="w"><label>Weaknesses</label><textarea data-k="weaknesses">${esc(state.weaknesses)}</textarea></div>
+      <div class="o"><label>Opportunities</label><textarea data-k="opportunities">${esc(state.opportunities)}</textarea></div>
+      <div class="t"><label>Threats</label><textarea data-k="threats">${esc(state.threats)}</textarea></div>
+    </div>`;
+}
+
+function planTool(){
+  const rows = state.milestones.map((m,i)=>`<div class="grid3" style="margin-bottom:8px">
+    <input data-mile="name" data-i="${i}" value="${esc(m.name)}">
+    <input data-mile="due" data-i="${i}" value="${esc(m.due)}">
+    <button type="button" class="${m.done?"on":"soft"}" data-done="${i}">${m.done?"Done":"Mark done"}</button>
+  </div>`).join("");
+  return `<h2>30-day proof plan</h2><p class="hint">Do not fund the full startup until these are checked.</p>${rows}
+    <div class="nav"><button class="ghost" type="button" id="addMile">Add step</button></div>`;
+}
+
+function writer(){
+  const c = calc();
+  const draft = buildDraft(c);
+  return `<h2>AI writer</h2><p class="hint">Drafts the study from the numbers and notes already on this desk. Edit the boxes, then come back — the draft updates.</p>
+    <div class="row no-print">
+      <button type="button" class="chip" id="copyDraft">Copy report</button>
+      <button type="button" class="chip" id="fillSwot">Fill SWOT from answers</button>
+    </div>
+    <div class="ai" id="draft">${draft}</div>
+    <h2 style="margin-top:16px">Ask-next prompts</h2>
+    <p class="hint">Paste one of these into chat if you want a deeper pass.</p>
+    <div class="ai"><p id="prompt">${esc(promptText(c))}</p></div>
+    <button type="button" class="ghost" id="copyPrompt">Copy prompt</button>`;
+}
+
+function buildDraft(c){
+  const weak = Object.entries(c.parts).sort((a,b)=>a[1]-b[1])[0];
+  const open = PERMITS.filter(p=>!state.checked[p]).slice(0,5).join(", ") || "none listed";
+  return `<h3>${esc(state.name||"Untitled project")} — feasibility brief</h3>
+    <p><span class="pill ${c.klass}">${c.call}</span> Score ${c.total}/100. Softest area: ${weak[0]} (${weak[1]}).</p>
+    <p>${esc(state.summary||"No description yet.")} It aims to solve this: ${esc(state.problem||"not stated")}.</p>
+    <p><b>Market.</b> Buyer: ${esc(state.customer||"not named")}. Demand is ${state.demand}/5 and competition is ${state.competition}/5. Edge: ${esc(state.edge||"not stated")}.</p>
+    <p><b>Money.</b> Startup ${fmt(c.startup)}, monthly costs ${fmt(c.monthly)}, price ${fmt(c.price)}, volume ${c.customers||0}/month. Sales ${fmt(c.revenue)}, leftover ${fmt(c.margin)}. Break-even ${c.breakEven==null?"unknown":c.breakEven+" sales"}. Payback ${c.payback==null?"does not pay back on these numbers":c.payback.toFixed(1)+" months"}. Funding: ${esc(state.funding)}.</p>
+    <p><b>Build and run.</b> Skills ${state.skills}/5, site ${state.site}/5, staffing ${state.team}/5. Launch window: ${esc(state.timeline||"unset")}. Weekly hours: ${esc(state.hours||"unset")}.</p>
+    <p><b>Rules still open.</b> ${esc(open)}. Notes: ${esc(state.rulesNotes||"none")}.</p>
+    <p><b>Risks.</b> ${esc(state.risksText||state.risks.map(r=>r.name).join(", ")||"none listed")}.</p>
+    <p><b>Next.</b> Prove demand with real conversations or pre-sales, get written quotes, and clear zoning before spending the startup amount.</p>`;
+}
+function promptText(c){
+  return `Review this feasibility study and tell me what to fix before I spend money. Project: ${state.name||"unnamed"} in ${state.place||"unknown place"}. Type: ${state.type}. Summary: ${state.summary}. Customer: ${state.customer}. Startup ${state.startup}, monthly ${state.monthly}, price ${state.price}, sales ${state.customers}. Score ${c.total}, call: ${c.call}. Risks: ${state.risksText}. Give a go/hold/stop, the three weakest assumptions, and a 14-day proof plan.`;
+}
+
+function homeTool(){
+  return `<h2>Add to Home Screen</h2>
+    <p class="hint">On an iPhone this only works in Safari, not inside another app.</p>
+    <div class="kpi"><small>iPhone</small><p style="margin:8px 0 0">1. Open this page in Safari.<br>2. Tap the Share button (square with the arrow).<br>3. Scroll and tap Add to Home Screen.<br>4. Name it Feasibility, then tap Add.</p></div>
+    <div class="kpi" style="margin-top:8px"><small>If you only have the file</small><p style="margin:8px 0 0">Send feasibility-desk.html, the two icons, and manifest.webmanifest to yourself together. Open the HTML in Safari from a link or a host. A file sitting in the Files app will not get a real home-screen icon.</p></div>
+    <p class="hint" style="margin-top:12px">After it is on the home screen, it opens full screen and keeps your study on this phone.</p>`;
+}
+function keysTool(){
+  const keys = [
+    ["1–9","Jump to a tool"],
+    ["N","New study"],
+    ["E","Export JSON"],
+    ["P","Print / PDF"],
+    ["W","Open AI writer"],
+    ["M","Open money desk"],
+    ["[" , "Previous study step"],
+    ["]","Next study step"]
+  ];
+  return `<h2>Shortcuts</h2><p class="hint">On a phone, use the dock. On a keyboard, these work anywhere except while typing.</p>
+    <table>${keys.map(k=>`<tr><td><b>${k[0]}</b></td><td>${k[1]}</td></tr>`).join("")}</table>
+    <h2 style="margin-top:16px">Tool map</h2>
+    <p>Study walks the questions. Money does break-even and payback. Market holds competitors. Permits is the city checklist. Risks and SWOT are the caution file. Timeline is the 30-day proof. AI writer turns the file into a brief you can copy.</p>`;
+}
+
+function render(){
+  $("title").textContent = state.name ? state.name : "Should you do this?";
+  $("tools").innerHTML = TOOLS.map(([id,label])=>`<button type="button" class="${state.tool===id?"on":"soft"}" data-tool="${id}">${label}</button>`).join("");
+  $("dock").innerHTML = [
+    ["study","Study"],["money","Money"],["ai","Writer"],["home","Home"]
+  ].map(([id,label])=>`<button type="button" class="${state.tool===id?"":"ghost"}" data-tool="${id}">${label}</button>`).join("");
+  const view = { study, money:moneyTool, market:marketTool, rules:rulesTool, risks:risksTool, swot:swotTool, plan:planTool, ai:writer, keys:keysTool, home:homeTool }[state.tool];
+  $("app").innerHTML = view();
+  bind();
+}
+
+function bind(){
+  document.querySelectorAll("[data-tool]").forEach(el=>el.onclick=()=>{ state.tool=el.dataset.tool; save(); render(); });
+  document.querySelectorAll("[data-k]").forEach(el=>{
+    const fn=()=>{ state[el.dataset.k]=el.value; save(); if(state.tool==="money") render(); };
+    el.addEventListener("change", fn);
+    el.addEventListener("input", ()=>{ state[el.dataset.k]=el.value; save(); });
+  });
+  document.querySelectorAll("[data-scale]").forEach(el=>el.onclick=()=>{ state[el.dataset.scale]=Number(el.dataset.n); save(); render(); });
+  document.querySelectorAll("[data-step]").forEach(el=>el.onclick=()=>{ state.step=Number(el.dataset.step); save(); render(); });
+  document.querySelectorAll("[data-permit]").forEach(el=>el.onchange=()=>{ state.checked[el.dataset.permit]=el.checked; save(); });
+  document.querySelectorAll("[data-comp]").forEach(el=>el.oninput=()=>{ state.comps[el.dataset.i][el.dataset.comp]=el.value; save(); });
+  document.querySelectorAll("[data-risk]").forEach(el=>el.onchange=el.oninput=()=>{ state.risks[el.dataset.i][el.dataset.risk]=el.value; save(); });
+  document.querySelectorAll("[data-mile]").forEach(el=>el.oninput=()=>{ state.milestones[el.dataset.i][el.dataset.mile]=el.value; save(); });
+  document.querySelectorAll("[data-done]").forEach(el=>el.onclick=()=>{ const i=el.dataset.done; state.milestones[i].done=!state.milestones[i].done; save(); render(); });
+  const next=$("next"), back=$("back");
+  if (next) next.onclick=()=>{ if(state.step>=5){ state.tool="ai"; } else state.step++; save(); render(); };
+  if (back) back.onclick=()=>{ state.step=Math.max(0,state.step-1); save(); render(); };
+  const addC=$("addComp"); if(addC) addC.onclick=()=>{ state.comps.push({name:"",price:"",note:""}); save(); render(); };
+  const addR=$("addRisk"); if(addR) addR.onclick=()=>{ state.risks.push({name:"",hit:"Medium",plan:""}); save(); render(); };
+  const addM=$("addMile"); if(addM) addM.onclick=()=>{ state.milestones.push({name:"",due:"",done:false}); save(); render(); };
+  const copy=$("copyDraft"); if(copy) copy.onclick=()=>navigator.clipboard.writeText($("draft").innerText);
+  const cp=$("copyPrompt"); if(cp) cp.onclick=()=>navigator.clipboard.writeText($("prompt").innerText);
+  const fill=$("fillSwot"); if(fill) fill.onclick=()=>{
+    const c=calc();
+    state.strengths = state.strengths || state.edge || "Clear offer and a named customer.";
+    state.weaknesses = state.weaknesses || `Softest score is ${Object.entries(c.parts).sort((a,b)=>a[1]-b[1])[0][0].toLowerCase()}.`;
+    state.opportunities = state.opportunities || state.problem || "Unmet local need.";
+    state.threats = state.threats || state.risksText || "Permit delay or slow sales.";
+    state.tool="swot"; save(); render();
+  };
+}
+
+function typing(e){ return ["INPUT","TEXTAREA","SELECT"].includes(e.target.tagName); }
+document.addEventListener("keydown", e=>{
+  if (e.metaKey||e.ctrlKey||e.altKey) return;
+  if (!typing(e) && e.key>="1" && e.key<="9"){ const t=TOOLS[Number(e.key)-1]; if(t){ state.tool=t[0]; save(); render(); } }
+  if (!typing(e) && e.key.toLowerCase()==="n"){ state=blank(); save(); render(); }
+  if (!typing(e) && e.key.toLowerCase()==="e") exportFile();
+  if (!typing(e) && e.key.toLowerCase()==="p"){ state.tool="ai"; save(); render(); setTimeout(()=>print(),200); }
+  if (!typing(e) && e.key.toLowerCase()==="w"){ state.tool="ai"; save(); render(); }
+  if (!typing(e) && e.key.toLowerCase()==="m"){ state.tool="money"; save(); render(); }
+  if (!typing(e) && e.key==="["){ state.tool="study"; state.step=Math.max(0,state.step-1); save(); render(); }
+  if (!typing(e) && e.key==="]"){ state.tool="study"; state.step=Math.min(5,state.step+1); save(); render(); }
+});
+
+function exportFile(){
+  const blob = new Blob([JSON.stringify(state,null,2)], {type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = (state.name||"feasibility").replace(/\s+/g,"-").toLowerCase()+".json";
+  a.click();
+}
+$("newBtn").onclick=()=>{ if(confirm("Start a blank study? Export first if you want this one saved.")){ state=blank(); save(); render(); } };
+$("exportBtn").onclick=exportFile;
+$("importBtn").onclick=()=>$("file").click();
+$("file").onchange=()=>{
+  const f=$("file").files[0]; if(!f) return;
+  const reader=new FileReader();
+  reader.onload=()=>{ try{ state=Object.assign(blank(), JSON.parse(reader.result)); save(); render(); }catch(e){ alert("That file could not be read."); } };
+  reader.readAsText(f);
+};
+$("printBtn").onclick=()=>{ state.tool="ai"; save(); render(); setTimeout(()=>print(),200); };
+
+load();
+render();
+</script>
+</body>
+</html>
