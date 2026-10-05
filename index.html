@@ -28,7 +28,8 @@
   .brand { letter-spacing:.18em; text-transform:uppercase; font:600 11px/1 ui-sans-serif,system-ui,sans-serif; color:var(--copper); }
   h1 { font-size:30px; line-height:1.05; margin:4px 0 6px; font-weight:600; }
   .sub { color:var(--muted); margin:0 0 12px; font-size:15px; }
-  .row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  .start { display:grid; gap:10px; margin:8px 0 14px; }
+  .start button { border-radius:16px; padding:16px; font-size:18px; text-align:left; }
   button, .btn {
     font-family:ui-sans-serif,system-ui,sans-serif; border:1px solid var(--ink); background:var(--ink);
     color:#fff; border-radius:999px; padding:9px 12px; font-size:13px; cursor:pointer;
@@ -90,8 +91,14 @@
 <body>
 <div class="wrap">
   <div class="brand">Feasibility Desk</div>
-  <h1 id="title">Should you do this?</h1>
-  <p class="sub">Full study desk: market, money, permits, risks, timeline, shortcuts, and a writer that drafts the report from your answers.</p>
+  <h1 id="title">Start here</h1>
+  <p class="sub">Tap a big button. You do not need the share sheet.</p>
+  <div class="start" id="start">
+    <button type="button" data-tool="study">1. Start the study</button>
+    <button type="button" class="soft" data-tool="money">2. Check the money</button>
+    <button type="button" class="soft" data-tool="rules">3. Permit checklist</button>
+    <button type="button" class="soft" data-tool="ai">4. Write the report</button>
+  </div>
   <div class="row no-print" style="margin-bottom:8px">
     <button class="ghost" id="newBtn" type="button">New</button>
     <button class="ghost" id="exportBtn" type="button">Export</button>
@@ -348,7 +355,7 @@ function keysTool(){
 }
 
 function render(){
-  $("title").textContent = state.name ? state.name : "Should you do this?";
+  $("title").textContent = state.name ? state.name : "Start here";
   $("tools").innerHTML = TOOLS.map(([id,label])=>`<button type="button" class="${state.tool===id?"on":"soft"}" data-tool="${id}">${label}</button>`).join("");
   $("dock").innerHTML = [
     ["study","Study"],["money","Money"],["ai","Writer"],["home","Home"]
